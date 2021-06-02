@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "crude-ml"
+version = "0.1.0"
+description = "Implementation of several machine learning algorithms without any libraries (in pure python)"
+authors = ["Rishikesh Kanabar"]
+
+[tool.poetry.dependencies]
+python = "^3.6"
+
+[tool.poetry.dev-dependencies]
+autopep8 = "^1.5.7"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

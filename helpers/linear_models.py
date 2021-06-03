@@ -3,13 +3,19 @@ from .linalg import *
 
 class NormalEquation:
 
-    def __init__(self):
+    def __init__(self, fit_intercept:bool = True):
         """
-        Class for linear regression using normal equation.
+        A simple Linear Regression model fit using the Normal Equation.
+
+            :param fit_intercept: Whether to fit an intercept term along with the model coefficients
         """
+        self.fit_intercept = fit_intercept
+
         self.theta_ = None
         self.coef_ = None
         self.intercept_ = None
+
+        self._is_fit = False
 
     def __structure_input(self, matrix):
         """
@@ -47,6 +53,30 @@ class NormalEquation:
         else:
             return True
 
+    def __set_intercept(self, theta_):
+        """
+        Private function to set the intercept value from the theta_ value trained
+            :param theta_: values of weights and bias found using the fit method
+
+            :return: value of the intercept (bias)
+        """
+        if self.fit_intercept:
+            return theta_[0]
+        else:
+            return [[0]]
+
+    def __set_coefs(self, theta_):
+        """
+        Private function to set the coefficient values from the theta_ value trained
+            :param theta_: values of weights and bias found using the fit method
+
+            :return: values of coefficients (weights)
+        """
+        if self.fit_intercept:
+            return theta_[1:]
+        else:
+            return theta_
+
     def fit(self, X, y):
         """
         Callable method of an instance to determine linear coefficients for the data
@@ -60,13 +90,16 @@ class NormalEquation:
             raise ValueError(
                 f"The number of rows in predictors (Size : {len(self.X), len(self.X[0])}) is not equal to the number of rows in the labels (Size : {len(self.y), len(self.y[0])})")
 
-        self.X = self.__add_ones_column(self.X)
+        if self.fit_intercept:
+            self.X = self.__add_ones_column(self.X)
 
         self.theta_ = dot(
             dot(inverse(dot(transpose(self.X), self.X)), transpose(self.X)), self.y)
 
-        self.intercept_ = self.theta_[0]
-        self.coef_ = self.theta_[1:]
+        self._is_fit = True
+
+        self.intercept_ = self.__set_intercept(self.theta_)
+        self.coef_ = self.__set_coefs(self.theta_)
 
     def predict(self, X_pred):
         """
@@ -75,12 +108,13 @@ class NormalEquation:
 
             :return: predictions from model parameters
         """
-        if self.theta_ == None:
+        if self._is_fit == None:
             raise ValueError(
                 "The values of the thetas are not set. Please call the fit method before calling the predict function.")
 
         self.X_pred = self.__structure_input(X_pred)
 
-        self.X_pred = self.__add_ones_column(self.X_pred)
+        if self.fit_intercept:
+            self.X_pred = self.__add_ones_column(self.X_pred)
 
         return dot(self.X_pred, self.theta_)
